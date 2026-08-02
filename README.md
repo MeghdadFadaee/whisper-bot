@@ -39,6 +39,13 @@ Useful options:
 python app.py recording.mp3 --model small --language fa --device auto
 ```
 
+The CLI shows a transcription progress bar and marks supported terminal tabs as
+busy while it is working. Disable the in-terminal percentage bar for scripts:
+
+```bash
+python app.py recording.mp3 --no-progress
+```
+
 Whisper downloads model weights on first use. `large` needs roughly 10 GB of
 memory; use `small` or `turbo` if the machine does not have enough memory.
 
