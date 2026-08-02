@@ -1,1 +1,4 @@
-docker build -t whisper-large-cpu .
+#!/usr/bin/env bash
+set -euo pipefail
+
+docker build -t whisper-bot .

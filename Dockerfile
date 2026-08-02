@@ -1,22 +1,18 @@
-FROM pytorch/pytorch:2.0.1-cpu
+FROM python:3.14-slim
 
-RUN apt-get update && apt-get install -y \
-    ffmpeg \
-    git \
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    WHISPER_DEVICE=cpu
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y ffmpeg \
     && rm -rf /var/lib/apt/lists/*
-
-RUN pip install --no-cache-dir git+https://github.com/openai/whisper.git
-
-RUN python -c "\
-    import whisper; \
-    whisper.load_model('tiny'); \
-    whisper.load_model('base'); \
-    whisper.load_model('small'); \
-    whisper.load_model('medium'); \
-    whisper.load_model('large')"
 
 WORKDIR /app
 
-COPY . /app
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
-CMD ["python", "app.py"]
+COPY . .
+
+CMD ["python", "bot.py"]
