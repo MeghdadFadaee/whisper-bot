@@ -49,6 +49,61 @@ python app.py recording.mp3 --no-progress
 Whisper downloads model weights on first use. `large` needs roughly 10 GB of
 memory; use `small` or `turbo` if the machine does not have enough memory.
 
+## Transcribe everything in `temp/`
+
+Start a resumable batch job in the background:
+
+```bash
+./batchctl.sh start
+```
+
+You may close the terminal after it starts. On macOS the process uses
+`caffeinate` to keep the machine awake. Check or control it later with:
+
+```bash
+./batchctl.sh status
+./batchctl.sh logs
+./batchctl.sh stop
+```
+
+Transcripts are written under `transcripts/` with the input folder structure
+preserved. For example, `temp/trip/video.mp4` produces:
+
+```text
+transcripts/trip/video.mp4.txt
+transcripts/trip/video.mp4.txt.json
+```
+
+The JSON file records the source size and modification time, model, and
+language. A later run skips only outputs that still match those settings, so an
+interrupted job can be safely started again. Failed files are retried once,
+recorded in `transcripts/_errors.jsonl`, and do not stop the rest of the batch.
+Live state and the final summary are available in `transcripts/_state.json` and
+`transcripts/_summary.json`.
+
+Recursive scanning and linked-directory scanning are enabled by default. The
+scanner tracks directory identities, so symbolic-link loops are safely ignored.
+Use `--no-recursive` or `--no-follow-symlinks` to disable either behavior.
+
+Useful examples:
+
+```bash
+# Preview everything the recursive scanner finds without starting Whisper.
+python batch.py temp --dry-run
+
+# Use a smaller model.
+./batchctl.sh start --model small
+
+# Use another input/output directory.
+./batchctl.sh start /path/to/media --output /path/to/text
+
+# Reprocess every file, even if matching output exists.
+./batchctl.sh start --overwrite
+
+# Run in the foreground for interactive use.
+python batch.py temp --output transcripts
+```
+
 ## Run the Bale bot
 
 Create the local configuration:
